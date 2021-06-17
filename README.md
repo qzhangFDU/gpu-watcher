@@ -1,6 +1,6 @@
 # gpu-watcher
 
-![mark](http://cdn.iblue.tech/img/20191024/XCGoYOOFxAnG.png?imageslim)
+![mark](http://qizhang.info/gpu-watcher.png)
 
 ## 依赖
 
@@ -27,7 +27,7 @@ lab:
     port: 80
 
 local:
-  host: G1_4GTX1080Ti // 本机hostname（在看板上的名称）
+  host: G1_4GTX1080Ti // 取消，看板上显示IP
 ```
 
 client：
