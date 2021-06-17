@@ -17,9 +17,9 @@ def index():
     return send_file('templates/index.html')
 
 
-@app.route('/api/gpu', methods=['GET'])
+@app.route('/api/gpu', methods=['GET', 'POST'])
 def gpu():
-    return json.dumps(act_map)
+    return json.dumps(act_map, sort_keys=True)
 
 @app.route('/api/ping', methods=['GET', 'POST'])
 def ping():
@@ -32,6 +32,11 @@ def ping():
         else:
             act_map[data['host']] = data
     return str(body)
+
+@app.route('/api/myip', methods=['GET'])
+def myip():
+    ip = request.remote_addr
+    return ip
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(config['lab']['center']['port']))

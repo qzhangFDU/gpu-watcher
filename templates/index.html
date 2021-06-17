@@ -10,26 +10,60 @@
 
 <body>
   <div id="app">
-    <el-row>
-      <el-col :span="8" v-for="(info, host) of gpu_data">
+    <el-row v-for="(info, host, index) of gpu_data" v-if="index%4==0">
+      <el-col :span="6">
         <el-card class="gpu_card">
           <div class="gpu_infos">
             <h2>{{ info.host }}</h2>
-            <p>{{ info.ip }}</p>
+	    <!--<p>{{ info.ip }}</p>-->
             <p class="time">{{ info._date }}</p>
           </div>
           <div v-for="(gpu, gpu_index) of info.gpu_info" class="gpu_info">
-            <el-progress :percentage="gpu.percentage" status="text">cuda:{{ gpu_index }} - {{ gpu.status }}</el-progress>
+		  <small>{{gpu.brand}}</small><el-progress :percentage="gpu.percentage" :color="customColorMethod"></el-progress>
           </div>
-          <el-button class="bottom" type="primary" plain href="info.ip">
-            <a :href="'http://' + info.ip + ':8888'">Enter Jupyter</a>
-          </el-button>
+        </el-card>
+      </el-col>
+      
+      <el-col :span="6" v-for="(info, host, index2) of gpu_data" v-if="index+1==index2">
+        <el-card class="gpu_card">
+          <div class="gpu_infos">
+            <h2>{{ info.host }}</h2>
+            <!--<p>{{ info.ip }}</p>-->
+            <p class="time">{{ info._date }}</p>
+          </div>
+          <div v-for="(gpu, gpu_index) of info.gpu_info" class="gpu_info">
+                  <small>{{gpu.brand}}</small><el-progress :percentage="gpu.percentage" :color="customColorMethod"></el-progress>
+          </div>
+        </el-card>
+      </el-col>
+
+      <el-col :span="6" v-for="(info, host, index3) of gpu_data" v-if="index+2==index3">
+        <el-card class="gpu_card">
+          <div class="gpu_infos">
+            <h2>{{ info.host }}</h2>
+            <!--<p>{{ info.ip }}</p>-->
+            <p class="time">{{ info._date }}</p>
+          </div>
+          <div v-for="(gpu, gpu_index) of info.gpu_info" class="gpu_info">
+                  <small>{{gpu.brand}}</small><el-progress :percentage="gpu.percentage" :color="customColorMethod"></el-progress>
+          </div>
+        </el-card>
+      </el-col>
+     
+      <el-col :span="6" v-for="(info, host, index4) of gpu_data" v-if="index+3==index4">
+        <el-card class="gpu_card">
+          <div class="gpu_infos">
+            <h2>{{ info.host }}</h2>
+            <!--<p>{{ info.ip }}</p>-->
+            <p class="time">{{ info._date }}</p>
+          </div>
+          <div v-for="(gpu, gpu_index) of info.gpu_info" class="gpu_info">
+                  <small>{{gpu.brand}}</small><el-progress :percentage="gpu.percentage" :color="customColorMethod"></el-progress>
+          </div>
         </el-card>
       </el-col>
     </el-row>
-
-
-
+    
   </div>
 </body>
 <!-- import Vue before Element -->
@@ -97,6 +131,15 @@
           this.gpu_data = Object.assign({}, this.gpu_data, JSON.parse(res))
         }
         )
+      },
+      customColorMethod(percentage) {
+        if (percentage < 50) {
+          return '#67c23a';
+        } else if (percentage < 80) {
+          return '#FFC300';
+        } else {
+          return '#C70039';
+        }
       }
     },
     mounted() {
@@ -105,5 +148,4 @@
     }
   })
 </script>
-
 </html>

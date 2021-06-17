@@ -1,7 +1,7 @@
 lab:
   center:
-    ip: 202.204.62.145
-    port: 80
+    ip: 10.176.50.36
+    port: 8088
 
 local:
   host: G1_4GTX1080Ti

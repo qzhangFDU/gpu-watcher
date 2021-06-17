@@ -12,24 +12,54 @@ with open(os.path.join(os.path.split(__file__)[0], 'config.yaml')) as f:
 pynvml.nvmlInit()
 host = config['local']['host']
 target = 'http://{}:{}/api/ping'.format(config['lab']['center']['ip'], config['lab']['center']['port'])
+target_ip = 'http://{}:{}/api/myip'.format(config['lab']['center']['ip'], config['lab']['center']['port'])
 gpu_nums = pynvml.nvmlDeviceGetCount()
 handle_list = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(gpu_nums)]
 
 
-def get_host_ip():
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-        s.connect(('8.8.8.8', 80))
-        ip = s.getsockname()[0]
-        return ip
+#def get_host_ip():
+#    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+#        s.connect(('8.8.8.8', 80))
+#        ip = s.getsockname()[0]
+#        return ip
 
+def get_host_ip():
+    error_count = 0
+    while True:
+        success = False
+        try:
+            res = requests.get(target_ip, '')
+            if res.status_code == 200:
+                success = True
+                myip = res.text
+                return myip
+        except Exception:
+            pass
+        if not success:
+            error_count += 1
+            if error_count > 3:
+                print('Failed to connect 3 times, try again in 5 minutes...')
+                time.sleep(5 * 60)
+                continue
+        else:
+            error_count = 0
+        
 
 def get_gpu_info():
     gpu_info = {}
     for i in range(len(handle_list)):
         meminfo = pynvml.nvmlDeviceGetMemoryInfo(handle_list[i])
+        use = pynvml.nvmlDeviceGetUtilizationRates(handle_list[i])
+        brand = pynvml.nvmlDeviceGetName(handle_list[i]).decode("utf-8")
+        #original
+        #gpu_info[i] = {
+        #    'status': '{:.1f}M/{:.1f}M'.format(meminfo.used / 2**20, meminfo.total / 2**20),
+        #    'percentage': round(meminfo.used / meminfo.total * 100)
+        #}
         gpu_info[i] = {
             'status': '{:.1f}M/{:.1f}M'.format(meminfo.used / 2**20, meminfo.total / 2**20),
-            'percentage': round(meminfo.used / meminfo.total * 100)
+            'percentage': round(use.gpu),
+            'brand' : brand
         }
     return gpu_info
 
@@ -43,7 +73,8 @@ if __name__ == "__main__":
         '_date': None}
     error_count = 0
     while True:
-        body['ip'] = get_host_ip()
+        body['host'] = get_host_ip()
+        body['ip'] = body['host']
         body['gpu_info'] = get_gpu_info()
         body['_date'] = time.strftime('%Y-%m-%d %H:%M:%S')
         success = False
@@ -58,8 +89,8 @@ if __name__ == "__main__":
             error_count += 1
             if error_count > 3:
                 print('Failed to connect 3 times, try again in 5 minutes...')
-                time.sleep(3 * 60)
+                time.sleep(5 * 60)
                 continue
         else:
             error_count = 0
-        time.sleep(10)
+        time.sleep(30)
